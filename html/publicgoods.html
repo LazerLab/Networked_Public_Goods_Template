@@ -1,0 +1,1105 @@
+<table border="0" id="instructionsContainer" align="center" width="857">
+    <tr>
+        <td width="849" height="590">
+            <table align="center" border="0" width="716">
+                <tr>
+                    <td width="222" height="40">
+                        <p align="center">&nbsp;</p>
+                    </td>
+                    <td width="207" height="40">
+                        <p align="center">&nbsp;</p>
+                    </td>
+                    <td width="273" height="40"><p align="center"><font face="Verdana"><span style="font-size:12pt; color:#404041" id="instimertext"></span></font></p></td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+						<table align="center" border="0" width="555" height="450">
+							<tr>
+								<td>
+									<div class="center_everything" id="video_instructions" style="display: none;">
+										<h2>Instructions</h2>
+										<br/>  
+										<div id="VideoHere"></div>
+										<div id="example4">
+											<input id="begininsbut" class="btn-largemp" type="submit" value="I'm Ready" onclick="submitReadyForBots();submit('Ready');$('#begininsbut').hide();$('#example4').html('Please wait for others...');"/>
+										</div>    
+									</div>
+								</td>
+							</tr>
+						</table>
+					</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<table id="gameContainer" border="0" align="center" width="800" height="600">
+    <tr>
+        <td width="800" height="80" colspan="3">
+		<div class="mybs-docs-example gamePlay">
+		<span style="font-size:10pt;"><font face="Verdana" id="gamePlayText"></font></span>
+		</div>
+		</td>
+    </tr>
+    <tr>
+        <td width="480" rowspan="2">
+			<div id="networkContainer"></div>
+		</td>
+        <td width="20" rowspan="2">&nbsp;</td>
+        <td width="300">
+			<div id="toolsColumn">
+				<table id="gameTools" width="300" height="250">
+				</table>
+			</div>
+		</td>
+    </tr>
+    <tr>
+        <td width="300" height="250" id="modifiableRow"></td>
+    </tr>
+</table>
+<div id="dialog">
+    <table align="center"><tr><td><p align="center"><span style="font-size:11pt; color:#404041"><font face="Verdana" id="roundintervaltimertext"></font></span></p></td></tr><tr height="20"><td></td></tr></table><table id="roundresultstext"></table>
+    <p id="dialogContent"></p>
+</div>
+<div id="dialogEndGame">
+    <table align="center"><tr><td><p align="center"><span style="font-size:11pt; color:#404041"><font face="Verdana" id="endgametimertext"></font></span></p></td></tr><tr height="20"><td></td></tr></table><table id="endgameresultstext"></table>
+    <p id="dialogContent"></p>
+</div>
+<script language="JavaScript" type="text/javascript"> 
+
+var currentExpRound;
+var offerButFace=0;
+var paper;
+var networkPaper;
+var locationCircle;
+var LRPoints;
+var totalPoints;
+var totalCollectivePoints;
+var indexArr;
+var circles;
+var hiddenCircles;
+var roundTimer;
+var timeoutRound;
+var freeRiderExposureElems;
+var instructionsTimer;
+var timeoutInstructions;
+var readyCount;
+var lastRoundContributions;
+var totalContributionsLastRound;
+var contributionCount;
+var roundIntervalTimer;
+var timeoutRoundInterval;
+var lastRoundTexts;
+var endGameTimer;
+var timeoutEndGame;
+var sortedScores;
+var lowestThreeContributors;
+var iControlBots = false;
+var totalSortedScores;
+var hightestPrev;
+var participantsCount;
+
+// Initializes the game -- default function that is called by the framework to initialize experiment variables
+function initialize()
+{	
+	requestConsent();
+}
+
+function consentComplete(state) {
+	this.readyCount=0;
+	if(myid==1){iControlBots=true;}
+	if(parseInt(variables['frame'])==1) // individual score
+		$("#gameTools").html("<tr><td width=\"300\"><table border=\"0\" width=\"271\" id=\"gameOption\"><tr><td width=\"83\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Time Left:</font></span></td><td width=\"178\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"timetext\"></font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"194\" id=\"gameOption\"><tr><td width=\"188\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"roundText\"></font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"281\" id=\"gameOption\"><tr><td width=\"213\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Total points accrued so far:</font></span></td><td width=\"58\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"totalPointsAccrued\">0</font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"228\" id=\"gameOption\"><tr><td width=\"169\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Budget for this round: </font></span></td><td width=\"49\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"budget_amount\"></font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\" id='plmkyrcb'><table border=\"0\" width=\"300\" id=\"gameOption\"><tr><td width=\"300\" height=\"19\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"pmyc\">Please make your contribution: 0</font></span></td></tr><tr><td width=\"300\" height=\"25\"><div id=\"shareslider\"></div></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"300\"><tr id='obcc'></tr></table></td></tr>");
+	if(parseInt(variables['frame'])==2) // individual + collective score
+	{
+		$("#gameTools").html("<tr><td width=\"300\"><table border=\"0\" width=\"271\" id=\"gameOption\"><tr><td width=\"83\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Time Left:</font></span></td><td width=\"178\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"timetext\"></font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"194\" id=\"gameOption\"><tr><td width=\"188\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"roundText\"></font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"281\" id=\"gameOption\"><tr><td width=\"213\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Total points accrued so far:</font></span></td><td width=\"58\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"totalPointsAccrued\">0</font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"281\" id=\"gameOption\"><tr><td width=\"230\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Total collective points so far:</font></span></td><td width=\"41\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"totalCollectivePoints\">0</font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"281\" id=\"gameOption\"><tr><td width=\"220\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Total collective points rank:</font></span></td><td width=\"51\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"totalCollectivePointsRank\">N/A</font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"281\" id=\"gameOption\"><tr><td width=\"235\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Highest total collective points:</font></span></td><td width=\"36\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"highestCollectivePoints\">N/A</font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"228\" id=\"gameOption\"><tr><td width=\"169\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\">Budget for this round: </font></span></td><td width=\"49\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"budget_amount\"></font></span></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\" id='plmkyrcb'><td width=\"300\"><table border=\"0\" width=\"300\" id=\"gameOption\"><tr><td width=\"300\" height=\"19\"><span style=\"font-size:11pt; color:#404041\"><font face=\"Verdana\" id=\"pmyc\">Please make your contribution: 0</font></span></td></tr><tr><td width=\"300\" height=\"25\"><div id=\"shareslider\"></div></td></tr></table></td></tr><tr width=\"300\" height=\"3\"><td></td></tr><tr width=\"300\"><td width=\"300\"><table border=\"0\" width=\"300\"><tr id='obcc'></tr></table></td></tr>");
+		$("#modifiableRow").css("height", 150);
+		getTopScores(variables['contribution_factor']+variables['round_budget']+"explevel1", 1, function(count, scores) { // framework's getTopScores function is used to get recorded top score for the given first name input.
+		  $("#highestCollectivePoints").html(scores[0]);
+		  this.highestPrev=scores[0];
+		});
+	}
+	this.locationCircle = [[60, 262.5], [108, 145], [240, 82.5], [372, 145], [420, 262.5], [372, 380], [240, 442.5], [108, 380], [240, 262.5]]; // game supports at most 8 circles but these 8 circles can be within these 9 points which are the central points of the circles
+	this.LRPoints = ["N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "N/A"]; // last round points
+	this.circles = new Array(); // a circles array for storing circle objects
+	this.hiddenCircles = new Array(); // an array to store circles objects with alpha=0 which will be used to simulate mouseover effect on circles.
+	this.totalContributionsLastRound=0;
+	this.contributionCount=0;
+	this.lastRoundContributions = new Array();
+	this.lastRoundTexts = new Array();
+	this.totalPoints = new Array();
+	this.sortedScores = new Array();
+	for(var b=1; b<=this.participantsCount; b++)
+		this.totalPoints[b-1]=0;
+	this.totalCollectivePoints=0;
+	this.participantsCount=numPlayers+parseInt(variables["bot_count"]);
+	
+	$("#gameContainer").hide();
+	initSlider();
+	this.instructionsTimer=parseInt(variables['instructions_timer']);
+	this.roundIntervalTimer=parseInt(variables['round_interval_timer']);
+	this.endGameTimer=parseInt(variables['end_game_timer']);
+	$("#prevp").hide();
+	countDownInstructions();
+	this.currentExpRound=0;
+	setRound(1); // set round to 1 to make a submission for round 1
+	if(myid==1) // If myid is 1, submit the setup information for XML recording purposes
+	{
+		var optionsText;
+		var adjMatStr="[";
+		if(parseInt(variables['network_structure'])==1)
+		{
+			for(var y=1; y<=this.participantsCount; y++)
+			{
+				if(y==this.participantsCount)
+					for(var z=1; z<=this.participantsCount; z++)
+						(z==y)?((z<this.participantsCount)?adjMatStr+="0, ":adjMatStr+="0; "):((z<this.participantsCount)?adjMatStr+="1, ":adjMatStr+="1; ");
+				else
+					for(var z=1; z<=this.participantsCount; z++)
+						(z<this.participantsCount)?adjMatStr+="0, ":adjMatStr+="1; "
+			}
+		}
+		if(parseInt(variables['network_structure'])==2)
+		{
+			for(var y=1; y<=this.participantsCount; y++)
+			{
+				for(var z=1; z<=this.participantsCount; z++)
+					(z==y)?((z<this.participantsCount)?adjMatStr+="0, ":adjMatStr+="0; "):((z<this.participantsCount)?adjMatStr+="1, ":adjMatStr+="1; ");
+			}
+		}
+		adjMatStr=adjMatStr.substring(0, adjMatStr.length-2)+"]";
+		optionsText="<setup type=\"contributionFactor\">"+variables['contribution_factor']+"</setup><setup type=\"freeRiderExposure\">"+variables['free_rider_exposure']+"</setup><setup type=\"frame\">"+variables['frame']+"</setup><setup type=\"networkStructure\">"+variables['network_structure']+"</setup><setup type=\"adjacencyMatrix\">"+adjMatStr+"</setup><setup type=\"totalRounds\">"+variables['total_rounds']+"</setup><setup type=\"roundTimes\">"+variables['round_times']+"</setup><setup type=\"scoreboardOrder\">"+variables['scoreboard_order']+"</setup><setup type=\"botCount\">"+variables['bot_count']+"</setup><setup type=\"botType\">"+variables['bot_type']+"</setup>";
+		submitBot(this.participantsCount+1, currentRound, optionsText); // submit this setup information by setting sender to an unused subject number = participantscount+1
+	}
+	setRound(2);
+	//Display the appropriate instructions video by getting the frame and free riders variables' values.
+	if(parseInt(variables['free_rider_exposure'])==0&&parseInt(variables['frame'])==2){
+		$("#VideoHere").html("<iframe src=\"//player.vimeo.com/video/98734397?autoplay=1\" id='vimeoVideo' width=\"640\" height=\"401\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>");  
+		variables["gameplay_text"]="Each experiment runs for %total_rounds% rounds, where the first two rounds each last %round_times[1][1]% seconds and all subsequent rounds last %round_times[1][3]% seconds. During a given round all participants are required to enter their contribution for that round. At the end of each round, each player receives the following information: (a) their contribution for that round, (b) the contributions of each of their neighbors for that round,(c) their own cumulative payoff up to that point, (d) the collective score of the entire group, and (e) the highest group score of previous rounds";
+	}
+	if(parseInt(variables['free_rider_exposure'])==0&&parseInt(variables['frame'])==1){
+		$("#VideoHere").html("<iframe src=\"//player.vimeo.com/video/98734395?autoplay=1\" id='vimeoVideo' width=\"640\" height=\"401\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>");  
+		variables["gameplay_text"]="Each experiment runs for %total_rounds% rounds, where the first two rounds each last %round_times[1][1]% seconds and all subsequent rounds last %round_times[1][3]% seconds. During a given round all participants are required to enter their contribution for that round. At the end of each round, each player receives the following information: (a) their contribution for that round, (b) the contributions of each of their neighbors for that round,  and (c) their own cumulative payoff up to that point";
+	}
+	if((parseInt(variables['free_rider_exposure'])==1||parseInt(variables['free_rider_exposure'])==2||parseInt(variables['free_rider_exposure'])==3)&&parseInt(variables['frame'])==1){
+		$("#VideoHere").html("<iframe src=\"//player.vimeo.com/video/98734394?autoplay=1\" id='vimeoVideo' width=\"640\" height=\"401\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>");
+		variables["gameplay_text"]="Each experiment runs for %total_rounds% rounds, where the first two rounds each last %round_times[1][1]% seconds and all subsequent rounds last %round_times[1][3]% seconds. During a given round all participants are required to enter their contribution for that round. At the end of each round, each player receives the following information: (a) their contribution for that round, (b) the contributions of each of their neighbors for that round,  (c) their own cumulative payoff up to that point,  and (d) the biggest free rider of the round (i.e., lowest contributor of the last round)";
+	}
+	if((parseInt(variables['free_rider_exposure'])==1||parseInt(variables['free_rider_exposure'])==2||parseInt(variables['free_rider_exposure'])==3)&&parseInt(variables['frame'])==2){
+		$("#VideoHere").html("<iframe src=\"//player.vimeo.com/video/98734393?autoplay=1\" id='vimeoVideo' width=\"640\" height=\"401\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>");	
+		variables["gameplay_text"]="Each experiment runs for %total_rounds% rounds, where the first two rounds each last %round_times[1][1]% seconds and all subsequent rounds last %round_times[1][3]% seconds. During a given round all participants are required to enter their contribution for that round. At the end of each round, each player receives the following information: (a) their contribution for that round, (b) the contributions of each of their neighbors for that round,  (c) their own cumulative payoff up to that point, (d) the biggest free rider of the round (i.e., lowest contributor of the last round), (e) the collective score of the entire group, and (f) the highest group score of previous rounds";
+	}
+	$("#video_instructions").show(); 
+	$("#gamePlayText").html(preprocess(variables["gameplay_text"]));
+}
+
+//If I am controlling the bots (default = true for single player version since myid = 1), submit 'Ready' signal for them to denote they are ready.
+function submitReadyForBots(){
+	if(iControlBots==true){
+		for(var i=numPlayers+1; i<=this.participantsCount; i++)
+			submitBot(i, currentRound, "Ready");
+	}
+}
+
+function newMove(participant, index) {
+	fetchMove(participant, currentRound, index, function(val) {
+		if(currentRound==1) // setup information is received to all subjects. Change everyone's round to 2.
+			setRound(2);
+		// Second round is used to collect 'Ready' Signals
+		if(currentRound==2&&this.readyCount<this.participantsCount)
+		{
+			if(val=="Ready"){
+				this.readyCount++
+			}
+			if(this.readyCount==this.participantsCount) // If everyone is ready, start the game
+			{
+				$('iframe#vimeoVideo').attr('src',''); // remove instructions video
+				clearTimeout(this.timeoutInstructions);
+				$("#instructionsContainer").hide();
+				$("#gameContainer").show();
+				drawNetwork(); // draw participants network with circles
+				$("#obcc").html("<td width=\"94\" height=\"60\"></td><td width=\"100\" height=\"60\"><div id=\"offerButContainer\"></div></td><td width=\"94\" height=\"60\"></td>");
+				this.paper = Raphael("offerButContainer", 200, 65);
+				drawOfferBut(0); // display offer button
+				$("#budget_amount").html(variables['round_budget']);
+				this.currentExpRound=1;
+				$("#roundText").html("Round "+this.currentExpRound+" out of "+variables['total_rounds']);
+				this.roundTimer=parseInt(eval(variables["round_times"])[0][this.currentExpRound-1]);
+				countDownRound();
+				setRound(2+this.currentExpRound);
+			}
+			return;
+		}
+		//Odd rounds that are greater than 2 is used collect contributions
+		if(currentRound>2&&currentRound%2==1)
+		{
+			this.contributionCount++; 
+			val = val.substring(val.indexOf(">")+1, val.indexOf("<", val.indexOf(">")+1)); // get the contribution from xml format
+			this.totalContributionsLastRound+=parseInt(val); 
+			this.lastRoundContributions[participant-1]=parseInt(val); // record contribution
+			if(this.contributionCount==this.participantsCount)
+			{
+				clearTimeout(this.timeoutRound);
+				while(this.LRPoints.length>0)
+					this.LRPoints.splice(0,1);
+				while(this.sortedScores.length>0)
+					this.sortedScores.splice(0,1);
+				
+				for(var b=1; b<=this.participantsCount; b++)
+				{
+					if(this.totalPoints[b-1]==undefined){this.totalPoints[b-1]=0;}
+					if(this.lastRoundTexts[b-1].attr('opacity')>0)
+						this.sortedScores.push([b, Math.round((parseInt(variables['round_budget'])-this.lastRoundContributions[b-1])+Number(variables['contribution_factor'])*this.totalContributionsLastRound), this.lastRoundContributions[b-1]]);
+					this.LRPoints[b-1] = Math.round((parseInt(variables['round_budget'])-this.lastRoundContributions[b-1])+Number(variables['contribution_factor'])*this.totalContributionsLastRound);
+					this.totalPoints[b-1]+=this.LRPoints[b-1];
+					this.totalCollectivePoints+=this.LRPoints[b-1];
+				}
+
+				this.sortedScores=selectionSort(this.sortedScores); // sort the scores for ranking
+				$("#roundresultstext").html("");
+
+				for(var b=0; b<this.sortedScores.length; b++)
+				{
+					if(this.sortedScores[b][0]==myid) 
+						$("#roundresultstext").html($("#roundresultstext").html()+"<tr><td><span style=\"font-size:10pt; color:#404041; font-weight:bold\">You ("+getName(this.sortedScores[b][0])+") contributed "+this.sortedScores[b][2]+" out of "+variables['round_budget']+" and earned "+this.sortedScores[b][1]+" points.</span></td></tr><tr height=\"10\"><td></td></tr>");
+					else
+						$("#roundresultstext").html($("#roundresultstext").html()+"<tr><td><span style=\"font-size:10pt; color:#404041\">"+getName(this.sortedScores[b][0])+" contributed "+this.sortedScores[b][2]+" out of "+variables['round_budget']+" and earned "+this.sortedScores[b][1]+" points.</span></td></tr><tr height=\"10\"><td></td></tr>");
+				}
+				$("#dialog").dialog("open");
+				countDownRoundInterval();
+			}
+		}
+		//Even rounds that are greater than 2 is used record last round stats to output XML
+		if(currentRound>2&&currentRound%2==0)
+		{
+			if(this.currentExpRound<=parseInt(variables['total_rounds']))
+			{
+				$("#plmkyrcb").show();
+				$("#shareslider").slider( "value", 0);
+				$("#pmyc").html("Please make your contribution: 0");
+				$("#obcc").html("<td width=\"94\" height=\"60\"></td><td width=\"100\" height=\"60\"><div id=\"offerButContainer\"></div></td><td width=\"94\" height=\"60\"></td>");
+				this.paper = Raphael("offerButContainer", 200, 65);
+				drawOfferBut(0);
+				$("#dialog").dialog("close");
+				$("#totalCollectivePointsRank").html(val.substring(val.indexOf(">")+1, val.indexOf("<", val.indexOf(">"))));
+				if(parseInt(variables['frame'])==2){
+					getTopScores(variables['contribution_factor']+variables['round_budget']+"explevel"+(this.currentExpRound-1), 1, function(count, scores) {
+						$("#highestCollectivePoints").html(scores[0]);
+					});
+                  	getTopScores(variables['contribution_factor']+variables['round_budget']+"explevel"+(this.currentExpRound), 1, function(count, scores) {
+						this.highestPrev=scores[0];
+					});
+				}
+				$("#roundText").html("Round "+this.currentExpRound+" out of "+variables['total_rounds']);
+				this.roundTimer=parseInt(eval(variables["round_times"])[0][this.currentExpRound-1]);
+				countDownRound();
+				setRound(1+2*this.currentExpRound);
+			}
+			else // it looks like subset of if clause and could be outside of else
+			{
+				$("#totalCollectivePointsRank").html(val.substring(val.indexOf(">")+1, val.indexOf("<", val.indexOf(">"))));
+				if(parseInt(variables['frame'])==2){
+					getTopScores(variables['contribution_factor']+variables['round_budget']+"explevel"+(this.currentExpRound-1), 1, function(count, scores) {
+						$("#highestCollectivePoints").html(scores[0]);
+					});
+					getTopScores(variables['contribution_factor']+variables['round_budget']+"explevel"+(this.currentExpRound), 1, function(count, scores) {
+						this.highestPrev=scores[0];
+					});     
+				}
+			}
+		}
+	});
+}
+
+// getName function for names of the users OR names of bots
+function getName(participant) {
+	if(participant>numPlayers)
+		return "User "+participant
+  return participants[participant]['name']
+}
+
+function getCurrentExpRound()
+{
+	return this.currentExpRound;
+}
+
+// a timer function used to count down seconds for the experiment round
+function countDownRound(){  
+	 if (this.roundTimer <=0){ 
+		clearTimeout(this.timeoutRound);
+		if(iControlBots){ // If I am controlling the bots and time is up, submit bot scores
+			submitBotScore();
+			if(parseInt(variables["bot_count"])>0){
+				if(parseInt(variables["bot_type"])==1){
+					for(var i=numPlayers+1;i<=this.participantsCount; i++)
+						submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+(Math.floor(Math.random()*parseInt(variables['round_budget']))+1)+"</contribution>");
+				}
+				if(parseInt(variables["bot_type"])==2){
+					for(var i=numPlayers+1;i<=this.participantsCount; i++){
+						if(this.lastRoundContributions==undefined||this.lastRoundContributions[i-1]==undefined)
+							submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+(Math.floor(Math.random()*parseInt(variables['round_budget']))+1)+"</contribution>");
+						else
+							submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+this.lastRoundContributions[(Math.floor(Math.random()*participantsCount))]+"</contribution>");
+					}
+				}
+			}
+		}
+		if($('#offerButContainer').is(":visible")) // If time is up, hide offer button submit a default value of parseInt(variables['round_budget'])/2
+		{
+			$("#offerButContainer").hide();
+			$("#plmkyrcb").hide();
+			$("#obcc").html("<td width=\"288\" height=\"125\"><span style=\"font-size:12pt; color:#0e76bc\">Thank you! You made a contribution of "+(parseInt(variables['round_budget'])/2)+". Please wait for the others...</span></td>");
+			submit("<contribution expRound=\""+getCurrentExpRound()+"\">"+(parseInt(variables['round_budget'])/2)+"</contribution>");
+		}
+	 }else{  
+		this.roundTimer--;
+		var min=Math.floor(this.roundTimer/60);
+		var sec=this.roundTimer%60;
+		if(min>1)
+		{
+			if(sec>1)
+				$("#timetext").html(min+" minutes "+sec+" seconds");
+			else if(sec==1)
+				$("#timetext").html(min+" minutes "+sec+" second");
+			else
+				$("#timetext").html(min+" minutes");
+		}
+		else if(min==1)
+		{
+			if(sec>1)
+				$("#timetext").html(min+" minute "+sec+" seconds");
+			else if(sec==1)
+				$("#timetext").html(min+" minute "+sec+" second");
+			else
+				$("#timetext").html(min+" minute");
+		}
+		else
+		{
+			if(sec>1)
+				$("#timetext").html(sec+" seconds");
+			else
+				$("#timetext").html(sec+" second");
+		}	
+		this.timeoutRound=setTimeout("countDownRound()", 1000);
+	 }  
+}
+
+// a timer function to count down seconds during the display of previous round results.
+function countDownRoundInterval(){  
+	 if (this.roundIntervalTimer <=0){ // If time is up, update stats
+		clearTimeout(this.timeoutRoundInterval);
+		this.roundIntervalTimer=parseInt(variables['round_interval_timer']);
+		$("#totalPointsAccrued").html(this.totalPoints[myid-1]);
+		if(parseInt(variables['frame'])==2)
+		{
+			$("#totalCollectivePoints").html(this.totalCollectivePoints);
+		}
+		this.lowestThreeContributors=new Array();
+		for(var b=1; b<=this.participantsCount; b++)
+		{
+			this.lastRoundTexts[b-1].attr({text: "Last Round:\n"+this.lastRoundContributions[b-1]});//this.lastRoundTexts[b-1].attr({text: "Last Round:\n"+LRPoints[b-1]});
+			this.lowestThreeContributors.push([b, this.lastRoundContributions[b-1], null]);
+		}
+		this.lowestThreeContributors = selectionSort(this.lowestThreeContributors);
+		if(parseInt(variables['free_rider_exposure'])==1)
+		{
+			if(this.currentExpRound==1)
+				createFreeRiderExposurePanel(1);
+			this.freeRiderExposureElems[2].attr({text: "1- N/A \u00a0\u00a0\u00a0 N/A"});
+			if($.trim(variables['scoreboard_order'])=="increasing")
+				this.freeRiderExposureElems[2].attr({text: "1- "+getName(this.lowestThreeContributors[0][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[0][1]});
+			if($.trim(variables['scoreboard_order'])=="decreasing")
+				this.freeRiderExposureElems[2].attr({text: "1- "+getName(this.lowestThreeContributors[this.lowestThreeContributors.length-1][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[this.lowestThreeContributors.length-1][1]});
+		}
+		if(parseInt(variables['free_rider_exposure'])==2)
+		{
+			if(this.currentExpRound==1)
+				createFreeRiderExposurePanel(2);
+			this.freeRiderExposureElems[2].attr({text: "1- N/A \u00a0\u00a0\u00a0 N/A"});
+			this.freeRiderExposureElems[3].attr({text: "2- N/A \u00a0\u00a0\u00a0 N/A"});
+			if($.trim(variables['scoreboard_order'])=="increasing")
+			{
+				this.freeRiderExposureElems[2].attr({text: "1- "+getName(this.lowestThreeContributors[0][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[0][1]});
+				if(this.lowestThreeContributors.length>1)
+					this.freeRiderExposureElems[3].attr({text: "2- "+getName(this.lowestThreeContributors[1][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[1][1]});
+			}
+			if($.trim(variables['scoreboard_order'])=="decreasing")
+			{
+				this.freeRiderExposureElems[2].attr({text: "1- "+getName(this.lowestThreeContributors[this.lowestThreeContributors.length-1][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[this.lowestThreeContributors.length-1][1]});
+				if(this.lowestThreeContributors.length>1)
+					this.freeRiderExposureElems[3].attr({text: "2- "+getName(this.lowestThreeContributors[this.lowestThreeContributors.length-2][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[this.lowestThreeContributors.length-2][1]});
+			}
+		}
+		if(parseInt(variables['free_rider_exposure'])==3)
+		{
+			if(this.currentExpRound==1)
+				createFreeRiderExposurePanel(3);
+			this.freeRiderExposureElems[2].attr({text: "1- N/A \u00a0\u00a0\u00a0 N/A"});
+			this.freeRiderExposureElems[3].attr({text: "2- N/A \u00a0\u00a0\u00a0 N/A"});
+			this.freeRiderExposureElems[4].attr({text: "3- N/A \u00a0\u00a0\u00a0 N/A"});
+			if($.trim(variables['scoreboard_order'])=="increasing")
+			{
+				this.freeRiderExposureElems[2].attr({text: "1- "+getName(this.lowestThreeContributors[0][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[0][1]});
+				if(this.lowestThreeContributors.length>1)
+					this.freeRiderExposureElems[3].attr({text: "2- "+getName(this.lowestThreeContributors[1][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[1][1]});
+				if(this.lowestThreeContributors.length>2)
+					this.freeRiderExposureElems[4].attr({text: "3- "+getName(this.lowestThreeContributors[2][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[2][1]});
+			}
+			if($.trim(variables['scoreboard_order'])=="decreasing")
+			{
+				this.freeRiderExposureElems[2].attr({text: "1- "+getName(this.lowestThreeContributors[this.lowestThreeContributors.length-1][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[this.lowestThreeContributors.length-1][1]});
+				if(this.lowestThreeContributors.length>1)
+					this.freeRiderExposureElems[3].attr({text: "2- "+getName(this.lowestThreeContributors[this.lowestThreeContributors.length-2][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[this.lowestThreeContributors.length-2][1]});
+				if(this.lowestThreeContributors.length>2)
+					this.freeRiderExposureElems[4].attr({text: "3- "+getName(this.lowestThreeContributors[this.lowestThreeContributors.length-3][0])+"\u00a0\u00a0\u00a0"+this.lowestThreeContributors[this.lowestThreeContributors.length-3][1]});
+			}
+		}
+
+		this.contributionCount=0;
+		this.totalContributionsLastRound=0;
+
+		this.currentExpRound++;
+		
+		setRound(2*this.currentExpRound);
+		
+		this.totalSortedScores = new Array();
+		if(this.currentExpRound>parseInt(variables['total_rounds'])) // Display the end game results
+		{
+			for(var b=1; b<=this.participantsCount; b++)
+			{
+				//if(this.lastRoundTexts[b-1].attr('opacity')>0)
+					this.totalSortedScores.push([b, this.totalPoints[b-1], null]);
+			}
+			this.totalSortedScores = selectionSort(this.totalSortedScores);
+			for(var b=0; b<this.totalSortedScores.length; b++)
+			{
+				if(this.totalSortedScores[b][0]==myid)
+					$("#endgameresultstext").html($("#endgameresultstext").html()+"<tr><td><b>Your ("+getName(this.totalSortedScores[b][0])+") total points: "+this.totalSortedScores[b][1]+"</b></td></tr><tr height=\"10\"><td></td></tr>");
+				else
+					$("#endgameresultstext").html($("#endgameresultstext").html()+"<tr><td>"+getName(this.totalSortedScores[b][0])+"'s total points: "+this.totalSortedScores[b][1]+"</td></tr><tr height=\"10\"><td></td></tr>");
+			}
+			$("#dialog").dialog("close");
+			$("#dialogEndGame").dialog("open");
+			countDownEndGame();
+		}
+		
+		var lastRank="";
+		// If I control the bots, update totalcollective points for that round's specific name by using framework's writeScore function
+		if(iControlBots==true)
+		{
+			writeScore(variables['contribution_factor']+variables['round_budget']+"explevel"+(this.currentExpRound-1),
+						this.totalCollectivePoints, 
+						"high", 
+						function(rank, count) { // gather end of round stats for XML submission
+							var scrText="";
+							for(var b=0; b<this.sortedScores.length; b++)
+								scrText+=("<info subject=\""+this.sortedScores[b][0]+"\" type=\"contribution\">"+this.sortedScores[b][2]+"</info><info subject=\""+this.sortedScores[b][0]+"\" type=\"earned\">"+this.sortedScores[b][1]+"</info>");
+							if(parseInt(variables['frame'])==2)
+							{
+								lastRank=rank+"/"+count; 
+								scrText = "<info type=\"totalCollectivePointsRank\">"+lastRank+"</info><info type=\"highestCollectivePoints\">"+this.highestPrev+"</info><info type=\"totalCollectivePointsSoFar\">"+this.totalCollectivePoints+"</info>"+scrText;
+							}
+							if(this.currentExpRound>parseInt(variables['total_rounds']))
+							{
+								var endGameScrText="";
+								for(var b=0; b<this.totalSortedScores.length; b++)
+								{
+									endGameScrText+=("<info subject=\""+this.totalSortedScores[b][0]+"\" type=\"endGamePoint\">"+this.totalSortedScores[b][1]+"</info>");
+								}
+								scrText+=endGameScrText;
+							}
+							//submit(scrText);
+                          	submitBot(this.participantsCount+1, currentRound, scrText); // make the submission of stats for XML recording purposes
+						});
+		}
+
+		if(iControlBots)
+			submitBotScore();
+			
+	 }else{  
+		this.roundIntervalTimer--;
+		var min=Math.floor(this.roundIntervalTimer/60);
+		var sec=this.roundIntervalTimer%60;
+		if(min>1)
+		{
+			if(sec>1)
+				$("#roundintervaltimertext").html(min+" minutes "+sec+" seconds left to proceed at next step.");
+			else if(sec==1)
+				$("#roundintervaltimertext").html(min+" minutes "+sec+" second left to proceed at next step.");
+			else
+				$("#roundintervaltimertext").html(min+" minutes left to proceed at next step.");
+		}
+		else if(min==1)
+		{
+			if(sec>1)
+				$("#roundintervaltimertext").html(min+" minute "+sec+" seconds left to proceed at next step.");
+			else if(sec==1)
+				$("#roundintervaltimertext").html(min+" minute "+sec+" second left to proceed at next step.");
+			else
+				$("#roundintervaltimertext").html(min+" minute left to proceed at next step.");
+		}
+		else
+		{
+			if(sec>1)
+				$("#roundintervaltimertext").html(sec+" seconds left to proceed at next step.");
+			else
+				$("#roundintervaltimertext").html(sec+" second left to proceed at next step.");
+		}	
+		this.timeoutRoundInterval=setTimeout("countDownRoundInterval()", 1000);
+	 }  
+}
+
+// a timer function to count down final screen
+function countDownEndGame(){  
+	 if (this.endGameTimer <=0){ 
+		clearTimeout(this.timeoutEndGame);
+		//$("#dialogEndGame").dialog("close");
+		$("#endgametimertext").html("Thank you for completing the experiment. Click <a href=\"/stop_test/\">HERE</a> to choose a new experiment...");
+		experimentComplete();
+		//var myurl = "http://"+window.location.host+"/stop_test";
+		//window.location = myurl;
+	 }else{  
+		this.endGameTimer--;
+		var min=Math.floor(this.endGameTimer/60);
+		var sec=this.endGameTimer%60;
+		if(min>1)
+		{
+			if(sec>1)
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+min+" minutes "+sec+" seconds");
+			else if(sec==1)
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+min+" minutes "+sec+" second");
+			else
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+min+" minutes");
+		}
+		else if(min==1)
+		{
+			if(sec>1)
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+min+" minute "+sec+" seconds");
+			else if(sec==1)
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+min+" minute "+sec+" second");
+			else
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+min+" minute");
+		}
+		else
+		{
+			if(sec>1)
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+sec+" seconds");
+			else
+				$("#endgametimertext").html("Thank you for your participation! You can leave the experiment in "+sec+" second");
+		}	
+		this.timeoutEndGame=setTimeout("countDownEndGame()", 1000);
+	 }  
+}
+
+// used to sort the scores
+function selectionSort(arr)
+{
+	for (var i=0; i<arr.length-1; i++) {
+		for (var j=i+1; j<arr.length; j++) {
+			if($.trim(variables['scoreboard_order'])=="increasing")
+			{
+				if (arr[i][1] > arr[j][1]) {
+					//... Exchange elements
+					var tempid = arr[i][0];
+					arr[i][0] = arr[j][0];
+					arr[j][0] = tempid;
+					
+					var tempscore = arr[i][1];
+					arr[i][1] = arr[j][1];
+					arr[j][1] = tempscore;
+					
+					var tempcontribution = arr[i][2];
+					arr[i][2] = arr[j][2];
+					arr[j][2] = tempcontribution;
+				}
+			}
+			if($.trim(variables['scoreboard_order'])=="decreasing")
+			{
+				if (arr[i][1] < arr[j][1]) {
+					var tempid = arr[i][0];
+					arr[i][0] = arr[j][0];
+					arr[j][0] = tempid;
+					
+					var tempscore = arr[i][1];
+					arr[i][1] = arr[j][1];
+					arr[j][1] = tempscore;
+					
+					var tempcontribution = arr[i][2];
+					arr[i][2] = arr[j][2];
+					arr[j][2] = tempcontribution;
+				}
+			}
+		}
+	}
+	return arr;
+}
+
+// implement playerDisconnect():
+function playerDisconnect(playerNum) {
+  // see if I have the lowest live id
+	for (var i = 1; i < myid; i++) 
+	{
+		if (activePlayers[i])
+			return;
+	}
+	iControlBots = true;
+	//submitBotScore();
+}
+
+//Bots submit values instead of inactive users. submitBotScore is used to handle submissions of the inactive users by using submitBot function of the framework. 
+function submitBotScore()
+{
+	for (var i = 1; i <= numPlayers; i++)
+	{
+		if (!activePlayers[i])
+		{
+			if(currentRound==2)
+				submitBot(i, currentRound, "Ready");
+			else if(currentRound>2&&currentRound%2==1)
+				submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+(parseInt(variables['round_budget'])/2)+"</contribution>");
+			else if(currentRound>2&&currentRound%2==0&&i==numPlayers)
+			{
+				writeScore(variables['contribution_factor']+variables['round_budget']+"explevel"+(this.currentExpRound-1),
+							this.totalCollectivePoints, 
+							"high", 
+							function(rank, count) {
+								var scrText="";
+								for(var b=0; b<this.sortedScores.length; b++)
+									scrText+=("<info subject=\""+this.sortedScores[b][0]+"\" type=\"contribution\">"+this.sortedScores[b][2]+"</info><info subject=\""+this.sortedScores[b][0]+"\" type=\"earned\">"+this.sortedScores[b][1]+"</info>");
+								if(parseInt(variables['frame'])==2)
+								{
+									lastRank=rank+"/"+count; 
+									scrText = "<info type=\"totalCollectivePointsRank\">"+lastRank+"</info><info type=\"highestCollectivePoints\">"+this.highestPrev+"</info><info type=\"totalCollectivePointsSoFar\">"+this.totalCollectivePoints+"</info>"+scrText;
+								}
+								if(this.currentExpRound>parseInt(variables['total_rounds']))
+								{
+									var endGameScrText="";
+									for(var b=0; b<this.totalSortedScores.length; b++)
+									{
+										endGameScrText+=("<info subject=\""+this.totalSortedScores[b][0]+"\" type=\"endGamePoint\">"+this.totalSortedScores[b][1]+"</info>");
+									}
+									scrText+=endGameScrText;
+								}
+								submitBot(i, currentRound, scrText);
+							});
+				return;
+			}
+		}
+	}
+}
+
+// custom initSlider function. Slide event is used to change the display of button according tho slider value
+function initSlider()
+{
+	 $(function() {
+		$( "#shareslider" ).slider({
+		range: "max",
+		min: 0,
+		max: 0,
+		value: 0,
+		slide: function( event, ui ) {
+			$("#pmyc").html("Please make your contribution: "+ui.value);
+			if(ui.value/$("#shareslider").slider( "valueMax")<=0.25)
+			{
+				if(this.offerButFace!=0)
+				{
+					this.offerButFace=0;
+					paper.clear();
+					drawOfferBut(0);
+				}
+			}
+			if(ui.value/$("#shareslider").slider( "valueMax")>0.25&&ui.value/$("#shareslider").slider( "valueMax")<=0.5)
+			{
+				if(this.offerButFace!=1)
+				{
+					this.offerButFace=1;
+					paper.clear();
+					drawOfferBut(1);
+				}
+			}
+			if(ui.value/$("#shareslider").slider( "valueMax")>0.5&&ui.value/$("#shareslider").slider( "valueMax")<=0.75)
+			{
+				if(this.offerButFace!=2)
+				{
+					this.offerButFace=2;
+					paper.clear();
+					drawOfferBut(2);
+				}
+			}
+			if(ui.value/$("#shareslider").slider( "valueMax")>0.75&&ui.value/$("#shareslider").slider( "valueMax")<=1.0)
+			{
+				if(this.offerButFace!=3)
+				{
+					this.offerButFace=3;
+					paper.clear();
+					drawOfferBut(3);
+				}
+			}
+		}
+		});
+		$( "#shareslider" ).slider( "setOption" , "max", parseInt(variables['round_budget']));
+	}
+	);
+}
+
+// Creates free rider exposure panel by making use of RaphaelJS functions
+function createFreeRiderExposurePanel(nofpl)
+{
+	this.freeRiderExposureElems=new Array();
+	if(nofpl==1)
+	{
+		var rectangle = this.networkPaper.roundedRectangle(320, 10, 150, 50, 5, 5, 5, 5).attr("fill", "#FDBE85");
+		this.freeRiderExposureElems.push(rectangle);
+		var lowestText=this.networkPaper.text(393, 25, "The lowest contributor\nof the last round:");
+		lowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		lowestText.attr("fill", "#404041")
+		this.freeRiderExposureElems.push(lowestText);
+		var firstLowestText=this.networkPaper.text(393, 47, "1- User 1\u00a0\u00a0\u00a0600");
+		firstLowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		firstLowestText.attr("fill", "#404041");
+		this.freeRiderExposureElems.push(firstLowestText);
+	}
+	if(nofpl==2)
+	{
+		var rectangle = this.networkPaper.roundedRectangle(320, 10, 150, 65, 5, 5, 5, 5).attr("fill", "#FDBE85");
+		this.freeRiderExposureElems.push(rectangle);
+		var lowestText=this.networkPaper.text(393, 25, "Two lowest contributors\nof the last round:");
+		lowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		lowestText.attr("fill", "#404041")
+		this.freeRiderExposureElems.push(lowestText);
+		var firstLowestText=this.networkPaper.text(393, 47, "1- User 1\u00a0\u00a0\u00a0600");
+		firstLowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		firstLowestText.attr("fill", "#404041");
+		this.freeRiderExposureElems.push(firstLowestText);
+		var secondLowestText=this.networkPaper.text(393, 62, "2- User 5\u00a0\u00a0\u00a0700");
+		secondLowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		secondLowestText.attr("fill", "#404041");
+		this.freeRiderExposureElems.push(secondLowestText);
+	}
+	if(nofpl==3)
+	{
+		var rectangle = this.networkPaper.roundedRectangle(320, 10, 150, 80, 5, 5, 5, 5).attr("fill", "#FDBE85");
+		this.freeRiderExposureElems.push(rectangle);
+		var lowestText=this.networkPaper.text(393, 25, "Three lowest contributors\nof the last round:");
+		lowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		lowestText.attr("fill", "#404041")
+		this.freeRiderExposureElems.push(lowestText);
+		var firstLowestText=this.networkPaper.text(393, 47, "1- User 1\u00a0\u00a0\u00a0600");
+		firstLowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		firstLowestText.attr("fill", "#404041");
+		this.freeRiderExposureElems.push(firstLowestText);
+		var secondLowestText=this.networkPaper.text(393, 62, "2- User 5\u00a0\u00a0\u00a0700");
+		secondLowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		secondLowestText.attr("fill", "#404041");
+		this.freeRiderExposureElems.push(secondLowestText);
+		var thirdLowestText=this.networkPaper.text(393, 77, "3- User 3\u00a0\u00a0\u00a0900");
+		thirdLowestText.attr({'font-size': 10, 'font-family': 'Verdana'});
+		thirdLowestText.attr("fill", "#404041");
+		this.freeRiderExposureElems.push(thirdLowestText);
+	}
+}
+
+function removeFreeRiderExposurePanel()
+{
+	for(var i=0; i<this.freeRiderExposureElems.length; i++)
+		this.freeRiderExposureElems[i].remove();
+}
+
+//Draws offer button according to given face (frame)
+function drawOfferBut(face)
+{
+	Raphael.fn.roundedRectangle = function (x, y, w, h, r1, r2, r3, r4){
+		var array = [];
+		array = array.concat(["M",x,r1+y, "Q",x,y, x+r1,y]); //A
+		array = array.concat(["L",x+w-r2,y, "Q",x+w,y, x+w,y+r2]); //B
+		array = array.concat(["L",x+w,y+h-r3, "Q",x+w,y+h, x+w-r3,y+h]); //C
+		array = array.concat(["L",x+r4,y+h, "Q",x,y+h, x,y+h-r4, "Z"]); //D
+
+		return this.path(array);
+	};
+	var offerButRect = this.paper.roundedRectangle(35, 2, 140, 60, 10, 10, 10, 10).attr({fill: "#8dc63f"}); // draw button rectangle
+	var offerImg = this.paper.image(getFile('offer'+face+'.png'), 3, 3, 137, 50);
+	var hiddenOfferButRect = this.paper.roundedRectangle(35, 2, 140, 60, 10, 10, 10, 10).attr({fill: "#8dc63f"}); // hidden button rectangle with alpha(opacity)=0 to simulate mouseover
+	hiddenOfferButRect.hover(function(){offerButRect.attr("fill", "#0A4");}, function(){offerButRect.attr({fill: "#8dc63f"});});
+	hiddenOfferButRect.attr("fill", "red");
+	hiddenOfferButRect.attr("cursor", "pointer");
+	hiddenOfferButRect.attr({opacity: 0});
+	hiddenOfferButRect.click(function() {
+		$("#offerButContainer").hide();
+		$("#plmkyrcb").hide();
+		$("#obcc").html("<td width=\"288\" height=\"125\"><span style=\"font-size:12pt; color:#0e76bc\">Thank you! You made a contribution of "+$("#shareslider").slider("value")+". Please wait for the others...</span></td>");
+		submit("<contribution expRound=\""+getCurrentExpRound()+"\">"+$("#shareslider").slider("value")+"</contribution>");
+		if(iControlBots){
+			if(parseInt(variables["bot_count"])>0){
+				if(parseInt(variables["bot_type"])==1){
+					for(var i=numPlayers+1;i<=participantsCount; i++)
+						submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+(Math.floor(Math.random()*parseInt(variables['round_budget']))+1)+"</contribution>");
+				}
+				if(parseInt(variables["bot_type"])==2){
+					for(var i=numPlayers+1;i<=participantsCount; i++){
+						if(lastRoundContributions==undefined||lastRoundContributions[i-1]==undefined)
+							submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+(Math.floor(Math.random()*parseInt(variables['round_budget']))+1)+"</contribution>");
+						else
+							submitBot(i, currentRound, "<contribution expRound=\""+getCurrentExpRound()+"\">"+lastRoundContributions[(Math.floor(Math.random()*participantsCount))]+"</contribution>");
+					}
+				}
+			}
+		}
+		return;
+	});
+}
+
+//initialize end of round dialog before the initialization of experiment
+$(document).ready(function(){
+    $('#dialog').dialog({
+        title: 'End of Round',
+        dialogClass: "noOverlayDialog",
+        autoOpen:false,
+        modal: true,
+		closeOnEscape: false,
+		draggable: false,
+		width: 500,
+		height: 300,
+		resizable: false,
+		open: function(event, ui) { $(".ui-dialog-titlebar-close", ui.dialog).hide(); }
+    });
+});
+
+// initialize end of game dialog before the initialization of experiment
+$(document).ready(function(){
+    $('#dialogEndGame').dialog({
+        title: 'End of Experiment Results',
+        dialogClass: "noOverlayDialog",
+        autoOpen:false,
+        modal: true,
+		closeOnEscape: false,
+		draggable: false,
+		width: 450,
+		height: 300,
+		resizable: false,
+		open: function(event, ui) { $(".ui-dialog-titlebar-close", ui.dialog).hide(); }
+    });
+});
+
+// Draws the participants network by using RaphalJS functions
+function drawNetwork()
+{
+	Raphael.fn.roundedRectangle = function (x, y, w, h, r1, r2, r3, r4){
+		var array = [];
+		array = array.concat(["M",x,r1+y, "Q",x,y, x+r1,y]); //A
+		array = array.concat(["L",x+w-r2,y, "Q",x+w,y, x+w,y+r2]); //B
+		array = array.concat(["L",x+w,y+h-r3, "Q",x+w,y+h, x+w-r3,y+h]); //C
+		array = array.concat(["L",x+r4,y+h, "Q",x,y+h, x,y+h-r4, "Z"]); //D
+
+		return this.path(array);
+	};
+
+	this.networkPaper = Raphael("networkContainer", 480, 525);
+
+	if(parseInt(variables['network_structure'])==1) // scale-free: one in the middle
+	{
+		//if(this.participantsCount==1)
+		//	this.indexArr=[9];
+		//if(this.participantsCount==2)
+		//	this.indexArr=[1, 5];
+		if(this.participantsCount==3) // if participant count is 3, circles are drawn to those 3 circle location indexes
+			this.indexArr=[1, 5, 9];
+		if(this.participantsCount==4)
+			this.indexArr=[3, 6, 8, 9];
+		if(this.participantsCount==5)
+			this.indexArr=[1, 3, 5, 7, 9];
+		if(this.participantsCount==6)
+			this.indexArr=[1, 3, 5, 6, 8, 9];
+		if(this.participantsCount==7)
+			this.indexArr=[1, 2, 4, 5, 6, 8, 9];
+		if(this.participantsCount==8)
+			this.indexArr=[1, 2, 3, 4, 5, 6, 8, 9];
+		if(this.participantsCount==9)
+			this.indexArr=[1, 2, 3, 4, 5, 6, 7, 8, 9];
+		
+		for(var i=1; i<=this.participantsCount; i++)
+		{
+			var circle = new Object();
+			circle=this.networkPaper.circle(240, 262.5, 40); // initially put to circle to the center
+			circle.animate({cx: locationCircle[this.indexArr[i-1]-1][0], cy: locationCircle[this.indexArr[i-1]-1][1]}, 4000, "elastic"); // then animate
+			circle.attr("fill", "#0e76bc");
+			this.circles.push(circle);
+			
+			var usernameText;
+			if(myid==i)
+			{
+				usernameText = this.networkPaper.text(240, 262.5, "You ("+getName(i)+")"); 
+				this.circles[this.circles.length-1].attr("fill", "#61A108");
+			}
+			else
+				usernameText = this.networkPaper.text(240, 262.5, getName(i)); 
+			usernameText.attr({'font-size': 11, 'font-family': 'Verdana'});
+			usernameText.attr("fill", "#f1f1f1");
+			usernameText.animate({x: locationCircle[this.indexArr[i-1]-1][0], y: locationCircle[this.indexArr[i-1]-1][1]-7.5}, 4000, "elastic");
+			var LRtext = this.networkPaper.text(240, 262.5, "Last Round:\n"+LRPoints[myid-1]); 
+			LRtext.attr({'font-size': 10, 'font-family': 'Verdana'});
+			LRtext.attr("fill", "#f1f1f1");
+			LRtext.animate({x: locationCircle[this.indexArr[i-1]-1][0], y: locationCircle[this.indexArr[i-1]-1][1]+12.5}, 4000, "elastic");
+			this.lastRoundTexts.push(LRtext);
+			if(i!=this.participantsCount&&i!=myid&&myid!=this.participantsCount)
+				LRtext.attr({opacity: 0});
+			
+			var hiddenCircle = new Object();
+			hiddenCircle=this.networkPaper.circle(240, 262.5, 40);
+			hiddenCircle.animate({cx: locationCircle[this.indexArr[i-1]-1][0], cy: locationCircle[this.indexArr[i-1]-1][1]}, 4000, "elastic");
+			hiddenCircle.attr({opacity: 0});
+			hiddenCircle.attr("fill", "red");
+			//hiddenCircle.attr("cursor", "pointer");
+			this.hiddenCircles.push(hiddenCircle);
+			
+			var path = new Object();
+			path.line = this.networkPaper.path("M "+240+" "+262.5+" l "+(0)+" "+(0)+" z");
+			path.line.animate({path: "M "+240+" "+262.5+" l "+(locationCircle[this.indexArr[i-1]-1][0]-240)+" "+(locationCircle[this.indexArr[i-1]-1][1]-262.5)+" z"}, 4000, "elastic");
+			path.line.attr({stroke: '#404041','stroke-width': 5});
+			path.line.toBack();
+		}
+	}
+	if(parseInt(variables['network_structure'])==2) // small world: all connected
+	{
+		//if(this.participantsCount==1)
+		//	this.indexArr=[9];
+		//if(this.participantsCount==2)
+		//	this.indexArr=[1, 5];
+		if(this.participantsCount==3)
+			this.indexArr=[3, 6, 8];
+		if(this.participantsCount==4)
+			this.indexArr=[2, 4, 6, 8];
+		if(this.participantsCount==5)
+			this.indexArr=[1, 3, 5, 6, 8];
+		if(this.participantsCount==6)
+			this.indexArr=[1, 2, 4, 5, 6, 8];
+		if(this.participantsCount==7)
+			this.indexArr=[1, 2, 3, 4, 5, 6, 8];
+		if(this.participantsCount==8)
+			this.indexArr=[1, 2, 3, 4, 5, 6, 7, 8];
+		
+		for(var i=1; i<=this.participantsCount; i++)
+		{
+			var circle = new Object();
+			circle=this.networkPaper.circle(240, 262.5, 40);
+			circle.animate({cx: locationCircle[this.indexArr[i-1]-1][0], cy: locationCircle[this.indexArr[i-1]-1][1]}, 4000, "elastic");
+			circle.attr("fill", "#0e76bc");
+			this.circles.push(circle);
+			
+			var usernameText;
+			if(myid==i)
+			{
+				usernameText = this.networkPaper.text(240, 262.5, "You ("+getName(i)+")"); 
+				this.circles[this.circles.length-1].attr("fill", "#61A108");
+			}
+			else
+				usernameText = this.networkPaper.text(240, 262.5, getName(i)); 
+			usernameText.attr({'font-size': 11, 'font-family': 'Verdana'});
+			usernameText.attr("fill", "#f1f1f1");
+			usernameText.animate({x: locationCircle[this.indexArr[i-1]-1][0], y: locationCircle[this.indexArr[i-1]-1][1]-7.5}, 4000, "elastic");
+			var LRtext = this.networkPaper.text(240, 262.5, "Last Round:\n"+LRPoints[myid-1]); 
+			LRtext.attr({'font-size': 10, 'font-family': 'Verdana'});
+			LRtext.attr("fill", "#f1f1f1");
+			LRtext.animate({x: locationCircle[this.indexArr[i-1]-1][0], y: locationCircle[this.indexArr[i-1]-1][1]+12.5}, 4000, "elastic");
+			this.lastRoundTexts.push(LRtext);
+			
+			var hiddenCircle = new Object();
+			hiddenCircle=this.networkPaper.circle(240, 262.5, 40);
+			hiddenCircle.animate({cx: locationCircle[this.indexArr[i-1]-1][0], cy: locationCircle[this.indexArr[i-1]-1][1]}, 4000, "elastic");
+			hiddenCircle.attr({opacity: 0});
+			hiddenCircle.attr("fill", "red");
+			//hiddenCircle.attr("cursor", "pointer");
+			this.hiddenCircles.push(hiddenCircle);
+			
+			for(var j=1; j<=this.participantsCount; j++)
+			{
+				if(j==i) continue;
+				var path = new Object();
+				path.line = this.networkPaper.path("M "+locationCircle[this.indexArr[i-1]-1][0]+" "+locationCircle[this.indexArr[i-1]-1][1]+" l "+(0)+" "+(0)+" z");
+				path.line.animate({path: "M "+locationCircle[this.indexArr[i-1]-1][0]+" "+locationCircle[this.indexArr[i-1]-1][1]+" l "+(locationCircle[this.indexArr[j-1]-1][0]-locationCircle[this.indexArr[i-1]-1][0])+" "+(locationCircle[this.indexArr[j-1]-1][1]-locationCircle[this.indexArr[i-1]-1][1])+" z"}, 6000, "backOut");
+				path.line.attr({stroke: '#404041','stroke-width': 5});
+				path.line.toBack();
+			}
+		}
+	}
+		
+	//animate mouseover for hidden circles -- if it is hovered, change opaque circle's color
+	this.hiddenCircles[0].hover(function(){circles[0].attr("fill", "#6198BC");}, function(){circles[0].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>1)
+		this.hiddenCircles[1].hover(function(){circles[1].attr("fill", "#6198BC");}, function(){circles[1].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>2)
+		this.hiddenCircles[2].hover(function(){circles[2].attr("fill", "#6198BC");}, function(){circles[2].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>3)
+		this.hiddenCircles[3].hover(function(){circles[3].attr("fill", "#6198BC");}, function(){circles[3].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>4)
+		this.hiddenCircles[4].hover(function(){circles[4].attr("fill", "#6198BC");}, function(){circles[4].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>5)
+		this.hiddenCircles[5].hover(function(){circles[5].attr("fill", "#6198BC");}, function(){circles[5].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>6)
+		this.hiddenCircles[6].hover(function(){circles[6].attr("fill", "#6198BC");}, function(){circles[6].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>7)
+		this.hiddenCircles[7].hover(function(){circles[7].attr("fill", "#6198BC");}, function(){circles[7].attr({fill: "#0e76bc"});});
+	if(this.participantsCount>8)
+		this.hiddenCircles[8].hover(function(){circles[8].attr("fill", "#6198BC");}, function(){circles[8].attr({fill: "#0e76bc"});});
+	this.hiddenCircles[myid-1].hover(function(){circles[myid-1].attr("fill", "#8dc63f");}, function(){circles[myid-1].attr({fill: "#61A108"});});
+}
+
+// preprocess variable string
+function preprocess(str)
+{
+	for(var i=0; i<Object.keys(variables).length; i++){
+		do{
+			if(str.indexOf("%"+Object.keys(variables)[i]+"%")>=0){
+				str=str.substring(0, str.indexOf("%"+Object.keys(variables)[i]+"%"))+variables[str.substring(str.indexOf("%"+Object.keys(variables)[i]+"%")+1, str.indexOf("%"+Object.keys(variables)[i]+"%")+1+Object.keys(variables)[i].length)]+str.substring(str.indexOf("%"+Object.keys(variables)[i]+"%")+2+Object.keys(variables)[i].length);
+			}else{//assumes that it must be variables['var'][i][j]
+				if(str.indexOf("%"+Object.keys(variables)[i]+"[")>=0){
+					tempstr=str.substring(str.indexOf("%"+Object.keys(variables)[i]+"[")+1, str.indexOf("%", str.indexOf("%"+Object.keys(variables)[i]+"[")+1));				
+					str=str.substring(0, str.indexOf("%"+Object.keys(variables)[i]+"["))+eval(variables[$.trim(str.substring(str.indexOf("%"+Object.keys(variables)[i]+"[")+1, str.indexOf("[",str.indexOf("%"+Object.keys(variables)[i]+"[")+1)))])[(parseInt(tempstr.substring(tempstr.indexOf('[')+1,tempstr.indexOf(']')))-1)][(parseInt(tempstr.substring(tempstr.indexOf('[', tempstr.indexOf('[')+1)+1,tempstr.indexOf(']', tempstr.indexOf(']')+1)))-1)]+str.substring(str.indexOf("%", str.indexOf("%"+Object.keys(variables)[i]+"[")+1)+1);
+				}
+			}
+		}while((str.indexOf("%"+Object.keys(variables)[i]+"%")>=0)||(str.indexOf("%"+Object.keys(variables)[i]+"[")>=0));
+	}
+	return str;
+}
+
+// a timer function to count down instructions
+function countDownInstructions(){  
+	 if (this.instructionsTimer <=0){ 
+		clearTimeout(this.timeoutInstructions);
+		if(iControlBots)
+			submitBotScore();		
+		if($.trim($('#example4').html())!='Please wait for others...')
+			submit('Ready');
+	 }else{  
+		this.instructionsTimer--;
+		var min=Math.floor(this.instructionsTimer/60);
+		var sec=this.instructionsTimer%60;
+		if(min>1)
+		{
+			if(sec>1)
+				$("#instimertext").html(min+" minutes "+sec+" seconds remaining");
+			else if(sec==1)
+				$("#instimertext").html(min+" minutes "+sec+" second remaining");
+			else
+				$("#instimertext").html(min+" minutes remaining");
+		}
+		else if(min==1)
+		{
+			if(sec>1)
+				$("#instimertext").html(min+" minute "+sec+" seconds remaining");
+			else if(sec==1)
+				$("#instimertext").html(min+" minute "+sec+" second remaining");
+			else
+				$("#instimertext").html(min+" minute remaining");
+		}
+		else
+		{
+			if(sec>1)
+				$("#instimertext").html(sec+" seconds remaining");
+			else
+				$("#instimertext").html(sec+" second remaining");
+		}	
+		this.timeoutInstructions=setTimeout("countDownInstructions()", 1000);
+	 }  
+}
+</script>
